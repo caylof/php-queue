@@ -1,0 +1,27 @@
+{
+    "name": "caylof/php-queue",
+    "type": "library",
+    "description": "a simple php queue base on workerman and redis stream",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Caylof\\Queue\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "caylof",
+            "email": "caylof@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "ext-redis": "*",
+        "psr/container": "^2.0",
+        "workerman/workerman": "^4.1"
+    },
+    "require-dev": {
+        "illuminate/redis": "^10.45",
+        "illuminate/container": "^10.45"
+    }
+}

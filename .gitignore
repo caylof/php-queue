@@ -1,0 +1,7 @@
+build
+vendor
+examples
+.idea
+.vscode
+.phpunit*
+composer.lock
