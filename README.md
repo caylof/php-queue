@@ -30,6 +30,9 @@ class TestPrint implements ConsumerInterface
 
     public function handle(array $data): void
     {
+        if (mt_rand(0, 10) > 5) {
+            throw new \Exception('test error');
+        }
         var_dump($data);
     }
 }
@@ -56,9 +59,13 @@ $worker->onWorkerStart = function(Worker $worker) {
     $redis = new Redis();
     $redis->connect('192.168.110.116', 16379);
 
+    $logger = new \Monolog\Logger('queue');
+    $logger->pushHandler(new \Monolog\Handler\StreamHandler(__DIR__ . '/queue.log'));
+
     $handler = new \Caylof\Queue\RedisStreamProcess(
         \Illuminate\Container\Container::getInstance(),
         $redis,
+        $logger,
         __DIR__ . '/consumers',
         'Caylof\\Examples\\Consumer',
     );

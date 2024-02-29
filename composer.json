@@ -18,10 +18,12 @@
         "php": ">=8.1",
         "ext-redis": "*",
         "psr/container": "^2.0",
+        "psr/log": "^3.0",
         "workerman/workerman": "^4.1"
     },
     "require-dev": {
         "illuminate/redis": "^10.45",
-        "illuminate/container": "^10.45"
+        "illuminate/container": "^10.45",
+        "monolog/monolog": "^3.5"
     }
 }

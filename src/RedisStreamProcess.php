@@ -3,7 +3,9 @@
 namespace Caylof\Queue;
 
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use Redis;
+use Throwable;
 use Workerman\Timer;
 
 class RedisStreamProcess
@@ -11,6 +13,7 @@ class RedisStreamProcess
     public function __construct(
         protected ContainerInterface $container,
         protected Redis $redis,
+        protected LoggerInterface $logger,
         protected string $consumerDir,
         protected string $consumerNamespace,
     ) {}
@@ -55,11 +58,20 @@ class RedisStreamProcess
         $groupMsg = $this->redis->xReadGroup($groupName, $consumerName, $streams, 1, 50000);
         foreach ($groupMsg as $key => $messages) {
             foreach ($messages as $msgId => $package) {
-                $handlers[$key](json_decode($package['data'], true));
-                $this->redis->multi()
-                    ->xAck($key, $groupName, [$msgId])
-                    ->xDel($key, [$msgId])
-                    ->exec();
+                try {
+                    $handlers[$key](json_decode($package['data'], true));
+                } catch (Throwable $e) {
+                    $this->logger->error($e->getMessage(), [
+                        'queue' => $key,
+                        'data' => $package['data'],
+                        'error' => $e->getFile() . ':' . $e->getLine(),
+                    ]);
+                } finally {
+                    $this->redis->multi()
+                        ->xAck($key, $groupName, [$msgId])
+                        ->xDel($key, [$msgId])
+                        ->exec();
+                }
             }
         }
     }
